@@ -1,0 +1,3 @@
+module WechatsHelper
+	
+end
