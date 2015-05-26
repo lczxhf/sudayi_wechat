@@ -13,16 +13,16 @@ class WechatsController < ApplicationController
  end
  
  def receive
-    logger.info params
+       puts params
 	str=request.body.read
-	logger.info str
+	puts str
 	doc=REXML::Document.new str
 	root=doc.root
 	ticket=root.get_elements('Encrypt')[0][0]	
 	
 	if Wechat.check_info(@wechat_info.token,params[:timestamp],params[:nonce],ticket,params[:msg_signature])
 		result=Wechat.new.decrypt(ticket.to_s,@wechat_info.encodingkey,@wechat_info.appid)
-		logger.info result.to_json
+		puts result.to_json
 		xml=REXML::Document.new result
 		xml_root=xml.root
 		if xml_root.get_elements('InfoType')[0][0].to_s=='component_verify_ticket'
@@ -40,22 +40,22 @@ class WechatsController < ApplicationController
 		   AuthCode.where(appid:appid).first.delete
 		end
 	else
-		logger.info 'error'
+		puts 'error'
 	end
 	render plain:'success'
  end
 
 
  def auth_code 
-	logger.info params
+	puts params
 	
 	url='https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token='+@wechat_info.access_token
 	body='{"component_appid":"'+@wechat_info.appid+'"," authorization_code": "'+params[:auth_code]+'"}'
-	logger.info body
+	puts body
 	result=Wechat.sent_to_wechat(url,body)
 	auth_code=AuthCode.create(code:params[:auth_code])
-	logger.info result.to_json
-	redirect_to :gzh_parameter,:auth_code_id=>auth_code._id
+	puts result.to_json
+	redirect_to :action=>'gzh_parameter',:auth_code_id=>auth_code._id
  end
 
  def gzh_parameter 
@@ -63,7 +63,7 @@ class WechatsController < ApplicationController
 	url='https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token='+@wechat_info.access_token
         body='{"component_appid":"'+@wechat_info.appid+'","authorization_code":"'+auth_code.code+'"}'
         result=Wechat.sent_to_wechat(url,body)
-	logger.info result.to_json
+	puts result.to_json
 	json=JSON.parse(result)
 	auth_code.token=json['authorization_info']['authorizer_access_token']
 	auth_code.appid=json['authorization_info']['authorizer_appid']
@@ -74,7 +74,7 @@ class WechatsController < ApplicationController
 	end
 	auth_code.func_info=arr
 	auth_code.save
-	redirect_to :gzh_info,auth_code_id:auth_code._id
+	redirect_to :action=>'gzh_info',auth_code_id:auth_code._id
  end
 
  def gzh_info 
@@ -96,19 +96,19 @@ class WechatsController < ApplicationController
 	gzh_info.alias=result['alias']
 	gzh_info.qrcode_url=result['qrcode_url']
 	gzh_info.save
-	redirect_to :option_info,auth_code_id:auth_code._id
+	redirect_to :action=>'option_info',auth_code_id:auth_code._id
  end
 
  def option_info 
 	auth_code=AuthCode.find(params[:auth_code_id])
 	option=['location_report','voice_recognize','customer_service']
 	url='https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_option?component_access_token='+@wechat_info.access_token
-	logger.info url
 	option.each do |a|
 	  body='{"component_appid":"'+@wechat_info.appid+'","authorizer_appid":"'+auth_code.appid+'","option_name":"'+a+'"}'
 	  result=JSON.parse(Wechat.sent_to_wechat(url,body))['option_value']
 	  auth_code.gzh_info.send(a+'=',result)
 	end
 	auth_code.gzh_info.save
+	render plain:'ok'
   end
 end
