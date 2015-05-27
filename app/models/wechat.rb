@@ -39,8 +39,19 @@ class Wechat
                 end
 	end
 	
+	def self.get_to_wechat(url)
+                 uri = URI(url)
+                Net::HTTP.start(uri.host, uri.port,:use_ssl => uri.scheme == 'https') do |http|
+                   request= Net::HTTP::Get.new(uri)
+                    response=http.request request
+                    response.body
+                end
+        end
+
+
+
 	def self.refresh_gzh_token(component_token,component_appid,authorizer_appid,authorizer_rtoken)
-		url='https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token='+component_token
+		url='https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token='+component_token
 		body='{"component_appid":"'+component_appid+'","authorizer_appid":"'+authorizer_appid+'","authorizer_refresh_token":"'+authorizer_rtoken+'"}'	
 		sent_to_wechat(url,body)
 	end

@@ -17,6 +17,7 @@ gem 'mongoid','~>4.0.0'
 gem 'bson_ext'
 gem 'rails_admin'
 # Use jquery as the JavaScript library
+gem 'roxml'
 gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'

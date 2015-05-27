@@ -1,6 +1,5 @@
 class WechatsController < ApplicationController
-	require 'net/http'
-  require "rexml/document"
+	require 'nokogiri'
    skip_before_action :verify_authenticity_token
    
    before_action do
@@ -16,17 +15,15 @@ class WechatsController < ApplicationController
        puts params
 	str=request.body.read
 	puts str
-	doc=REXML::Document.new str
-	root=doc.root
-	ticket=root.get_elements('Encrypt')[0][0]	
+	doc=Nokogiri::Slop str
+	ticket=doc.xml.Encrypt.content	
 	
 	if Wechat.check_info(@wechat_info.token,params[:timestamp],params[:nonce],ticket,params[:msg_signature])
 		result=Wechat.new.decrypt(ticket.to_s,@wechat_info.encodingkey,@wechat_info.appid)
-		puts result.to_json
-		xml=REXML::Document.new result
-		xml_root=xml.root
-		if xml_root.get_elements('InfoType')[0][0].to_s=='component_verify_ticket'
-		   verify_ticket=xml_root.get_elements('ComponentVerifyTicket')[0][0]
+		puts result
+		xml=Nokogiri::Slop result
+		if xml.xml.InfoType.content.to_s=='component_verify_ticket'
+		   verify_ticket=xml.xml.ComponentVerifyTicket.content
 		   @wechat_info.ticket=verify_ticket.to_s
 		   url='https://api.weixin.qq.com/cgi-bin/component/api_component_token'
 		   body='{"component_appid":"'+@wechat_info.appid+'","component_appsecret":"'+@wechat_info.appsecret+'","component_verify_ticket":"'+@wechat_info.ticket+'"}'

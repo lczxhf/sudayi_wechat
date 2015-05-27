@@ -1,7 +1,7 @@
 
  module ReplyWeixinMessageHelper
 	 def reply_text_message(from=nil, to=nil, content)
-      message = TextReplyMessage.new
+      message = MessagesHelper::TextReplyMessage.new
       message.FromUserName = from || @weixin_message.ToUserName
       message.ToUserName   = to   || @weixin_message.FromUserName
       message.Content      = content
@@ -19,7 +19,7 @@
 
     # music = generate_music
     def reply_music_message(from=nil, to=nil, music)
-      message = MusicReplyMessage.new
+      message = MessagesHelper::MusicReplyMessage.new
       message.FromUserName = from || @weixin_message.ToUserName
       message.ToUserName   = to   || @weixin_message.FromUserName
       message.Music        = music
@@ -37,7 +37,7 @@
 
     # articles = [generate_article]
     def reply_news_message(from=nil, to=nil, articles)
-      message = NewsReplyMessage.new
+      message = MessagesHelper::NewsReplyMessage.new
       message.FromUserName = from || @weixin_message.ToUserName
       message.ToUserName   = to   || @weixin_message.FromUserName
       message.Articles     = articles
@@ -66,7 +66,7 @@
     # </xml>
 
     def reply_video_message(from=nil, to=nil, video)
-      message = VideoReplyMessage.new
+      message = MessagesHelper::VideoReplyMessage.new
       message.FromUserName = from || @weixin_message.ToUserName
       message.ToUserName   = to   || @weixin_message.FromUserName
       message.Video = video
@@ -80,7 +80,7 @@
     end
 
     def reply_voice_message(from=nil, to=nil, voice)
-      message = VoiceReplyMessage.new
+      message = MessagesHelper::VoiceReplyMessage.new
       message.FromUserName = from || @weixin_message.ToUserName
       message.ToUserName   = to   || @weixin_message.FromUserName
       message.Voice = voice
@@ -94,7 +94,7 @@
     end
 
     def reply_image_message(from=nil, to=nil, image)
-      message = ImageReplyMessage.new
+      message = MessagesHelper::ImageReplyMessage.new
       message.FromUserName = from || @weixin_message.ToUserName
       message.ToUserName   = to   || @weixin_message.FromUserName
       message.Image = image
@@ -102,7 +102,7 @@
     end
 
     def reply_transfer_customer_service_message(from=nil, to=nil)
-      message = TransferCustomerServiceReplyMessage.new
+      message = MessagesHelper::TransferCustomerServiceReplyMessage.new
       message.FromUserName = from || @weixin_message.ToUserName
       message.ToUserName   = to   || @weixin_message.FromUserName
       encrypt_message message.to_xml
@@ -111,7 +111,6 @@
     private
 
       def encrypt_message(msg_xml)
-        return msg_xml if !@is_encrypt
         # 加密回复的XML
         encrypt_xml = Wechat.new.encrypt(msg_xml,@wechat_info.encodingkey,@wechat_info.appid).gsub("\n","")
         # 标准的回包
@@ -119,7 +118,7 @@
       end
 
       def generate_encrypt_message(encrypt_xml)
-        msg              = EncryptMessage.new
+        msg              = MessagesHelper::EncryptMessage.new
         msg.Encrypt      = encrypt_xml
         msg.TimeStamp    = Time.now.to_i.to_s
         msg.Nonce        = SecureRandom.hex(8)

@@ -1,8 +1,4 @@
-MultiXml.parser = :nokogiri
-
-
-
-  class Message
+   class Message
 
     def initialize(hash)
       @source = OpenStruct.new(hash)
@@ -20,8 +16,8 @@ MultiXml.parser = :nokogiri
       @source.MsgId.to_i
     end
 
-    def self.factory(xml)
-      hash = MultiXml.parse(xml)['xml']
+    def self.factory(hash)
+     
       case hash['MsgType']
       when 'text'
         TextMessage.new(hash)
@@ -175,4 +171,3 @@ MultiXml.parser = :nokogiri
       @source.ThumbMediaId
     end
   end
-
