@@ -1,5 +1,6 @@
 class WechatsController < ApplicationController
 	require 'nokogiri'
+	require 'net/http/post/multipart'
    skip_before_action :verify_authenticity_token
    
    before_action do
@@ -10,7 +11,26 @@ class WechatsController < ApplicationController
 	@url="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=#{@wechat_info.appid}&pre_auth_code=#{@wechat_info.pre_auth_code}&redirect_uri=http://shop.29mins.com/wechats/auth_code"
 	
  end
- 
+ def test
+	auth_code=AuthCode.first
+	url = URI.parse('https://api.weixin.qq.com/cgi-bin/media/upload?access_token='+auth_code.token+'&type=image')
+	req = Net::HTTP::Post::Multipart.new url.path,
+  	"file1" =>UploadIO.new(params[:url], "image/jpeg", "image.jpg")
+	res = Net::HTTP.start(url.host, url.port,:use_ssl => url.scheme == 'https') do |http|
+  	http.request(req)
+	puts 'aa'
+end
+	puts req.inspect
+	render nothing: true
+ end
+
+ def test2
+	auth_code=AuthCode.first
+	url='https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token='+auth_code.token
+	puts url
+	result=JSON.parse(Wechat.get_to_wechat(url))
+	puts result
+ end 
  def receive
        puts params
 	str=request.body.read

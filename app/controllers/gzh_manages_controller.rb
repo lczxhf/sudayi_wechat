@@ -25,13 +25,17 @@ class GzhManagesController < ApplicationController
 
 	def authorize
 		if params[:appid]
+			
 			gzh=AuthCode.where(appid:params[:appid]).first
-			wechater_code=WechaterCode.new(auth_code:params[:code])	
+			wechater_code=WechaterCode.new(code:params[:code])	
 			wechater_code.auth_code=gzh
 			url="https://api.weixin.qq.com/sns/oauth2/component/access_token?appid=#{gzh.appid}&code=#{params[:code]}&grant_type=authorization_code&component_appid=#{@wechat_info.appid}&component_access_token="+@wechat_info.access_token
 			body=""
 			result=JSON.parse(Wechat.sent_to_wechat(url,body))
 			puts result
+			if previous=WechaterCode.where(openid:result['openid']).first
+			   previous.delete
+			end
 			wechater_code.token=result['access_token']
 			wechater_code.refresh_token=result['refresh_token']
 			wechater_code.openid=result['openid']
@@ -65,6 +69,22 @@ class GzhManagesController < ApplicationController
 		wechater_info.unionid=info['unionid']
 		wechater_info.wechater_code=wechater_code
 		wechater_info.save
+		hash={}
+		hash['first']='恭喜你成为速达易会员'
+		hash['keyword1']=info['nickname']
+		hash['keyword2']=(Time.now+1.year).strftime('%Y%m%d').to_s
+		hash['remark']='更多详情请关注速达易'
+		 Gzh.sent_template_message(wechater_code.auth_code.token,wechater_code.openid,"E3PgD8slAbZ03ZvYVtD_S5y-ekdTKpSXs64docm8Ojc","http://shop.29mins.com/wechats/home",hash)
+
 		render plain: 'ok'
+	end
+	
+	def test
+		result=Gzh.fetch_qrcode('gQFR8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL1JIV1B6akRsVUdBcDlWZ0MybHNLAAIENtFmVQMEgDoJAA==')
+		image=MiniMagick::Image.read(result)	
+		path=File.join( Rails.root.to_s, 'public','abc.jpg')
+		image.write path
+		FileUtils.chmod("+r",path)
+		render nothing: true
 	end
 end
