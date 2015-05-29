@@ -14,23 +14,31 @@ class WechatsController < ApplicationController
  def test
 	auth_code=AuthCode.first
 	url = URI.parse('https://api.weixin.qq.com/cgi-bin/media/upload?access_token='+auth_code.token+'&type=image')
-	req = Net::HTTP::Post::Multipart.new url.path,
-  	"file1" =>UploadIO.new(params[:url], "image/jpeg", "image.jpg")
+	req = Net::HTTP::Post::Multipart.new url,
+  	"meida" =>UploadIO.new(params[:url], "image/jpeg", "my_image.jpg")
 	res = Net::HTTP.start(url.host, url.port,:use_ssl => url.scheme == 'https') do |http|
-  	http.request(req)
-	puts 'aa'
+  	respond=http.request(req)
+	puts respond.body
 end
-	puts req.inspect
-	render nothing: true
+	render html:  req.body
  end
 
  def test2
 	auth_code=AuthCode.first
 	url='https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token='+auth_code.token
-	puts url
 	result=JSON.parse(Wechat.get_to_wechat(url))
 	puts result
  end 
+ def test3
+	auth_code=AuthCode.first
+	url='https://api.weixin.qq.com/cgi-bin/media/get?access_token='+auth_code.token+'&media_id=j4RjtVueSUgKMWsQSjabXbpGf0FyLU8tbAqsLeYk8jz0j_1WdsvgL0z-qz1KMMPG'
+	result=Wechat.get_to_wechat(url)
+	image=MiniMagick::Image.read result
+	path=File.join( Rails.root.to_s, 'public','abc.jpg')
+	image.write path
+	FileUtils.chmod("+r",path)
+	render nothing: true
+ end
  def receive
        puts params
 	str=request.body.read
