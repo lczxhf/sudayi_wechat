@@ -13,31 +13,44 @@ class WechatsController < ApplicationController
  end
  def test
 	auth_code=AuthCode.first
-	url = URI.parse('https://api.weixin.qq.com/cgi-bin/media/upload?access_token='+auth_code.token+'&type=image')
-	req = Net::HTTP::Post::Multipart.new url,
-  	"meida" =>UploadIO.new(params[:url], "image/jpeg", "my_image.jpg")
-	res = Net::HTTP.start(url.host, url.port,:use_ssl => url.scheme == 'https') do |http|
-  	respond=http.request(req)
-	puts respond.body
-end
-	render html:  req.body
+	content_type=params[:url].content_type
+	type=content_type[0...content_type.index('/')]
+	puts params[:url].inspect
+	result=JSON.parse(Gzh.upload_media(auth_code.token,params[:url],type,'abc'))
+	puts result
+	#result=JSON.parse(Gzh.upload_forever_media(auth_code.token,type,params[:url],params[:url].original_filename,'lzh','123'))
+	#puts result
+ end
+ def test3
+#	system ('wget -P '+Rails.root.to_s+"/public/ -O abc.mp4  http://203.205.140.111/vweixinp.tc.qq.com/1007_8182acadb2014278a768d492ca30fb8e.f10.mp4?vkey=61CF764DD74584E5FB54615A6AC560C36DD925DBD5BE31A92810C7036056C794E91823721EDCBE91&sha=0&save=1")
+	auth_code=AuthCode.first
+	array=[]
+	hash={}
+	hash['title']='sudayi'
+	hash['media_id']='jrSyuoJcx6y-C1CJllRZVQqdmo-nu_ecOJBfFUI5t-Y'
+	hash['author']='lzh'
+	hash['digest']='wodediyige'
+	hash['is_cover']='1'
+	hash['content']='xiwangyidingyaochenggonga'
+	hash['url']='http://shop.29mins.com/wechats/home'
+	array<<hash
+	result=JSON.parse(Gzh.upload_news(auth_code.token,array))
+	puts result
  end
 
  def test2
 	auth_code=AuthCode.first
-	url='https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token='+auth_code.token
-	result=JSON.parse(Wechat.get_to_wechat(url))
-	puts result
- end 
- def test3
-	auth_code=AuthCode.first
-	url='https://api.weixin.qq.com/cgi-bin/media/get?access_token='+auth_code.token+'&media_id=j4RjtVueSUgKMWsQSjabXbpGf0FyLU8tbAqsLeYk8jz0j_1WdsvgL0z-qz1KMMPG'
-	result=Wechat.get_to_wechat(url)
+	result=Gzh.get_or_del_forever_media(auth_code.token,'jrSyuoJcx6y-C1CJllRZVQqdmo-nu_ecOJBfFUI5t-Y')		
 	image=MiniMagick::Image.read result
 	path=File.join( Rails.root.to_s, 'public','abc.jpg')
 	image.write path
 	FileUtils.chmod("+r",path)
-	render nothing: true
+ end
+
+ def test5
+	auth_code=AuthCode.first
+	result=JSON.parse(Gzh.sentall_preview(auth_code.token,'ozn7njomLZVrNlqmRD3L93tEFvCo','mpvideo',['media_id','jrSyuoJcx6y-C1CJllRZVb9KbkdF1GTgUTdQ6jMs1nQ','abc','lzh']))
+	puts result
  end
  def receive
        puts params

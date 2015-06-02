@@ -64,7 +64,9 @@ module MessagesHelper
     xml_accessor :PicUrl, :cdata => true
     xml_accessor :Url,    :cdata => true
   end
+  
 
+  
   # <xml>
   # <ToUserName><![CDATA[toUser]]></ToUserName>
   # <FromUserName><![CDATA[fromUser]]></FromUserName>

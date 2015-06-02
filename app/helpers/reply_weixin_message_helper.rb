@@ -9,7 +9,7 @@
     end
 
     def generate_music(title, desc, music_url, hq_music_url)
-      music = Music.new
+      music = MessagesHelper::Music.new
       music.Title       = title
       music.Description = desc
       music.MusicUrl    = music_url
@@ -27,7 +27,7 @@
     end
 
     def generate_article(title, desc, pic_url, link_url)
-      item = Article.new
+      item = MessagesHelper::Article.new
       item.Title       = title
       item.Description = desc
       item.PicUrl = pic_url
@@ -46,7 +46,7 @@
     end
 
     def generate_video(media_id, desc, title)
-      video = Video.new
+      video = MessagesHelper::Video.new
       video.MediaId = media_id
       video.Title   = title
       video.Description = desc
@@ -74,7 +74,7 @@
     end
 
     def generate_voice(media_id)
-      voice = Voice.new
+      voice = MessagesHelper::Voice.new
       voice.MediaId = media_id
       voice
     end
@@ -88,7 +88,7 @@
     end
 
     def generate_image(media_id)
-      image = Image.new
+      image = MessagesHelper::Image.new
       image.MediaId = media_id
       image
     end
