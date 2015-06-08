@@ -33,7 +33,7 @@ class GzhManagesController < ApplicationController
 			body=""
 			result=JSON.parse(Wechat.sent_to_wechat(url,body))
 			puts result
-			if previous=WechaterCode.where(openid:result['openid']).first
+			if previous=WechaterCode.where(openid:result['openid'],auth_code_id:gzh._id).first
 			   previous.delete
 			end
 			wechater_code.token=result['access_token']

@@ -40,6 +40,12 @@ class Gzh
 		Wechat.get_to_wechat(url)	
 	end
 	
+	def self.long2short(token,long_url)
+		url='https://api.weixin.qq.com/cgi-bin/shorturl?access_token='+token
+		body='{"action":"long2short","long_url":"'+long_url+'"}'
+		Wechat.sent_to_wechat(url,body)
+	end
+	
 	def self.upload_media(token,media,type,name)
 		url = URI.parse('https://api.weixin.qq.com/cgi-bin/media/upload?access_token='+token+'&type='+type)
 		req = Net::HTTP::Post::Multipart.new url,

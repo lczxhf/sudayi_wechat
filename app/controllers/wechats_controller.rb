@@ -26,12 +26,12 @@ class WechatsController < ApplicationController
 	auth_code=AuthCode.first
 	array=[]
 	hash={}
-	hash['title']='sudayi'
+	hash['title']='购买商品'
 	hash['media_id']='jrSyuoJcx6y-C1CJllRZVQqdmo-nu_ecOJBfFUI5t-Y'
-	hash['author']='lzh'
-	hash['digest']='wodediyige'
+	hash['author']='叫哥'
+	hash['digest']='收钱了'
 	hash['is_cover']='1'
-	hash['content']='xiwangyidingyaochenggonga'
+	hash['content']='给钱了亲'
 	hash['url']='http://shop.29mins.com/wechats/home'
 	array<<hash
 	result=JSON.parse(Gzh.upload_news(auth_code.token,array))
@@ -48,8 +48,8 @@ class WechatsController < ApplicationController
  end
 
  def test5
-	auth_code=AuthCode.first
-	result=JSON.parse(Gzh.sentall_preview(auth_code.token,'ozn7njomLZVrNlqmRD3L93tEFvCo','mpvideo',['media_id','jrSyuoJcx6y-C1CJllRZVb9KbkdF1GTgUTdQ6jMs1nQ','abc','lzh']))
+	auth_code=AuthCode.last
+	result=JSON.parse(Gzh.sentall_by_openid(auth_code.token,auth_code.wechater_codes.collect{|a| a.openid},'image',['media_id','9S7-Yv8HKEfCDpustBu9Xdsm1t959c-R1yug3ok7-E4g4XwA2MC47aYJ97G97ITj','abc','lzh']))
 	puts result
  end
  def receive

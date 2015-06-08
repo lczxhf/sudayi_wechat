@@ -26,10 +26,16 @@ class MessagesController < ApplicationController
 			    if @weixin_message.Event=='subscribe'
 				render xml: reply_text_message('欢迎')	
 			    else
-				
+			
 			    end
 			elsif @weixin_message.MsgType=='text'
+				if @weixin_message.Content=='pay'
+				abc='http://shop.29mins.com/test_pay/pay?openid='+@weixin_message.FromUserName+'&showwxpaytitle=1'
+				elsif @weixin_message.Content=="qrpay"
+				abc='http://shop.29mins.com/test_pay/pay?type=qrcode&product_id=121'
+				else
 				abc='https://open.weixin.qq.com/connect/oauth2/authorize?appid='+gzh.appid+'&redirect_uri=http://shop.29mins.com/gzh_manages/authorize&response_type=code&scope=snsapi_userinfo&state=200&component_appid='+@wechat_info.appid+'#wechat_redirect'
+				end
 				render xml: reply_text_message(abc)	
 			else
 			    	#render xml: reply_video_message(generate_video('jrSyuoJcx6y-C1CJllRZVb9KbkdF1GTgUTdQ6jMs1nQ','abc','123')) 
@@ -37,7 +43,8 @@ class MessagesController < ApplicationController
 				#render xml: reply_image_message(generate_image('Wa8x3_rF7QII2BRyD3vy3F5bsmi_J89geaJMNYza3WOzNh_jg5t2FKXEyKi5solI'))
 				#render xml: reply_video_message(generate_video('CLfuZmn0JRTVc3sYETISn9AJd4TeL2BnMy72_qP_A0XwXveLSfYT2pesMbWGcImL','123','abc'))
 				#render xml: reply_image_message(generate_image('jrSyuoJcx6y-C1CJllRZVce9SSxrSPdh8mVUNOY_Pvc'))
-				render xml: reply_news_message([generate_article('123','abc','http://shop.29mins.com/abc.jpg','http://shop.29mins.com/wechats/home'),generate_article('lzh','haha','http://shop.29mins.com/abc.jpg','http://shop.29mins.com/wechats/home')])
+				#render xml: reply_news_message([generate_article('123','abc','http://shop.29mins.com/abc.jpg','http://shop.29mins.com/wechats/home'),generate_article('lzh','haha','http://shop.29mins.com/abc.jpg','http://shop.29mins.com/wechats/home')])
+				render xml: reply_image_message(generate_image('9u6BstOCQyQ-fCUw99S56ezHgnM_Qrzgx-Vxwwkeq4MW43WmO9nZjj00BAa2f8Mz'))
 			end
 		end
    end

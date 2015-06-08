@@ -1,0 +1,2 @@
+module NativePayHelper
+end
