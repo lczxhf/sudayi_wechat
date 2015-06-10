@@ -87,4 +87,9 @@ class GzhManagesController < ApplicationController
 		FileUtils.chmod("+r",path)
 		render nothing: true
 	end
+
+	def sent_message_to_one
+	   auth_code=AuthCode.last
+           result=JSON.parse(Gzh.sentall_preview(auth_code.token,'oE_fQskOrf3LhUAdargG_UPHVVDo','image',['media_id','V1Bf1tN4j23yM3gWznsgPC5LOOJMqMe754A3lrDMX6Dl1bFVjLo94cGLAqoMRJNq','abc','lzh']))
+	end
 end

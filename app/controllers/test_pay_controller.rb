@@ -12,7 +12,7 @@ class TestPayController < ApplicationController
 		   #openid: params[:openid],
 		   body: '好看的衣服啊',
 		   out_trade_no: SecureRandom.hex,
-		   total_fee: 1,
+		   total_fee: 100,
 		   notify_url: 'http://shop.29mins.com/test_pay/callback'
 		}
 		if params[:type]=="qrcode"
@@ -33,11 +33,11 @@ class TestPayController < ApplicationController
 		#	}
 		#	xml=PayXml.get_xml(qr_hash)
 		#	puts xml
-			
+		#	render xml: xml
 			Qrcode.qcode(doc.xml.code_url.content)
-			@url1=doc.xml.code_url.content
+			@url1="http://shop.29mins.com/abc.png"
 			render action: :my_pay
-	#		render location: doc.xml.code_url.content,status: 302
+		#	render location: doc.xml.code_url.content,status: 302
 		else
 		  hash1={
                      package: "prepay_id=#{doc.xml.prepay_id.content}"
@@ -79,6 +79,26 @@ class TestPayController < ApplicationController
 		 Qrcode.qcode(body)
 		 qrcode=File.open(Rails.root.to_s+"/public/abc.png")
 		result=JSON.parse(Gzh.upload_media(auth_code.token,qrcode,'image','my_qrcode'))
+		puts result
+	end
+	
+	def redbage
+		hash={
+		  nick_name: 'sudayi',
+		  send_name: 'sudayi',
+		  re_openid: 'ozn7njomLZVrNlqmRD3L93tEFvCo',
+		  total_amount: 100,
+		  min_value: 100,
+		  max_value: 100,
+		  total_num: 1,
+		  wishing: 'happy',
+		  act_name: 'test',
+		  remark: "you are welcome"
+		}
+		body=Redbage.get_xml(hash)
+		puts body
+		url='https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack'
+		result=Wechat.sent_to_wechat(url,body)
 		puts result
 	end
 end

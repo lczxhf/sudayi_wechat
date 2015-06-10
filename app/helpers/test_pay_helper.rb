@@ -1,4 +1,6 @@
 module TestPayHelper
+	AUTHCODE=AuthCode.first
+        MACID='1245225302'
 	module Sign
 	  require 'digest/md5'
 	  def self.generate(params)
@@ -16,12 +18,12 @@ module TestPayHelper
 	end
 
 	module PayXml
-		@auth_code=AuthCode.first
-		MACID='1245225302'
+		#@auth_code=AuthCode.first
+		#MACID='1245225302'
 		def self.get_xml(params,is_qrcode=false)
 			 params = {
         			nonce_str: SecureRandom.uuid.tr('-', ''),
-				appid: @auth_code.appid,
+				appid: AUTHCODE.appid,
                    		mch_id: MACID,
       			 }.merge(params)
 		  if is_qrcode
@@ -33,7 +35,7 @@ module TestPayHelper
 
 		def self.get_json(params)
 		   params={
-		      appId: @auth_code.appid,
+		      appId: AUTHCODE.appid,
 		      timeStamp: Time.now.to_i.to_s,
 		      nonceStr: SecureRandom.uuid.tr('-', ''),
 		      signType: 'MD5', 
@@ -47,8 +49,21 @@ module TestPayHelper
 		def self.qcode(url)
     		#二维码
     		qr=RQRCode::QRCode.new(url,:size=>14,:level=>:h).to_img
-		qr.resize(200, 200).save(Rails.root.to_s+"/public/abc.png")
+		qr.resize(300, 300).save(Rails.root.to_s+"/public/abc.png")
 
   		end
+	end
+
+	module Redbage
+		def self.get_xml(params)
+		     params={
+		        nonce_str: SecureRandom.uuid.tr('-', ''),
+			mch_billno: "#{MACID}#{Time.now.strftime('%Y%m%d')}#{SecureRandom.hex(5)}",
+			mch_id: MACID,
+			wxappid: AUTHCODE.appid,
+			client_ip: '192.168.69.63',
+		     }.merge(params)
+		     "<xml>#{params.collect{|key,value| "<#{key}>#{value}</#{key}>"}.join}<sign>#{TestPayHelper::Sign.generate(params)}</sign></xml>"
+		end
 	end
 end

@@ -49,7 +49,7 @@ class WechatsController < ApplicationController
 
  def test5
 	auth_code=AuthCode.last
-	result=JSON.parse(Gzh.sentall_by_openid(auth_code.token,auth_code.wechater_codes.collect{|a| a.openid},'image',['media_id','9S7-Yv8HKEfCDpustBu9Xdsm1t959c-R1yug3ok7-E4g4XwA2MC47aYJ97G97ITj','abc','lzh']))
+	result=JSON.parse(Gzh.sentall_preview(auth_code.token,'oE_fQskOrf3LhUAdargG_UPHVVDo','image',['media_id','V1Bf1tN4j23yM3gWznsgPC5LOOJMqMe754A3lrDMX6Dl1bFVjLo94cGLAqoMRJNq','abc','lzh']))
 	puts result
  end
  def receive
