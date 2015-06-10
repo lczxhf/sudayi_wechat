@@ -98,7 +98,19 @@ class TestPayController < ApplicationController
 		body=Redbage.get_xml(hash)
 		puts body
 		url='https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack'
-		result=Wechat.sent_to_wechat(url,body)
-		puts result
+		uri = URI(url)
+                Net::HTTP.start(uri.host, uri.port,:use_ssl => uri.scheme == 'https') do |http|
+                   request= Net::HTTP::Post.new(uri,{'Content-Type'=>'application/json'})
+                   request.body=body
+		   http.use_ssl = true
+		   raw = File.read(Rails.root.to_s+"/rootca.pem")
+		   p12 = OpenSSL::PKCS12.new(File.open(Rails.root.to_s+"/apiclient_cert.p12").read, "1245225302")
+
+		   http.cert = OpenSSL::X509::Certificate.new(raw)
+		   http.key = OpenSSL::PKey::RSA.new(raw)
+		   http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+		   response=http.request request
+                   puts response.body
+                end
 	end
 end
