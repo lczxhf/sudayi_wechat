@@ -1,6 +1,8 @@
 class TestPayController < ApplicationController
 	include TestPayHelper
 	require 'nokogiri'
+	require 'net/https'
+	require 'rest-client'
 	 skip_before_action :verify_authenticity_token
 	  WECHATURL='https://api.mch.weixin.qq.com/pay/'
 	def pay
@@ -12,7 +14,7 @@ class TestPayController < ApplicationController
 		   #openid: params[:openid],
 		   body: '好看的衣服啊',
 		   out_trade_no: SecureRandom.hex,
-		   total_fee: 100,
+		   total_fee: 1,
 		   notify_url: 'http://shop.29mins.com/test_pay/callback'
 		}
 		if params[:type]=="qrcode"
@@ -96,21 +98,28 @@ class TestPayController < ApplicationController
 		  remark: "you are welcome"
 		}
 		body=Redbage.get_xml(hash)
-		puts body
 		url='https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack'
 		uri = URI(url)
-                Net::HTTP.start(uri.host, uri.port,:use_ssl => uri.scheme == 'https') do |http|
-                   request= Net::HTTP::Post.new(uri,{'Content-Type'=>'application/json'})
-                   request.body=body
-		   http.use_ssl = true
-		   raw = File.read(Rails.root.to_s+"/rootca.pem")
-		   p12 = OpenSSL::PKCS12.new(File.open(Rails.root.to_s+"/apiclient_cert.p12").read, "1245225302")
-
-		   http.cert = OpenSSL::X509::Certificate.new(raw)
-		   http.key = OpenSSL::PKey::RSA.new(raw)
-		   http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-		   response=http.request request
-                   puts response.body
-                end
+             	#Net::HTTP.start(uri.host, uri.port,:use_ssl => uri.scheme == 'https') do |http|
+                #   request= Net::HTTP::Post.new(uri,{'Content-Type'=>'application/xml'})
+                #  request.body=body
+                   p12 = OpenSSL::PKCS12.new(File.open(Rails.root.to_s+"/apiclient_cert.p12","rb").read,"1245225302")
+                #   http.cert = OpenSSL::X509::Certificate.new(p12.certificate)
+                #   http.key = OpenSSL::PKey::RSA.new(p12.key)
+		#   http.ca_file = Rails.root.to_s+"/rootca.pem"
+                #   http.verify_mode = OpenSSL::SSL::VERIFY_PEER 
+		#   http.ciphers=cipher
+		#   response=http.request request
+                #   puts response.body
+                #end
+		response=RestClient::Resource.new(
+  			url, 
+			  :ssl_client_cert  =>  OpenSSL::X509::Certificate.new(p12.certificate), 
+ 			 :ssl_client_key   =>  OpenSSL::PKey::RSA.new(p12.key),
+ 			 :ssl_ca_file      =>  Rails.root.to_s+"/rootca.pem" , 
+			  :verify_ssl       =>  OpenSSL::SSL::VERIFY_PEER 
+		).post(body)
+		puts response.body
+		render nothing: true
 	end
-end
+	end
